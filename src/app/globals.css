@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --brand-950: #0b1a3b;
+  --brand-900: #0f2454;
+  --brand-800: #162f6a;
+  --brand-700: #1e3d7f;
+  --brand-600: #2b4c8a;
+  --brand-500: #3b6fb5;
+  --brand-400: #5a8fd4;
+  --brand-300: #7aaae6;
+  --brand-200: #a8cbf0;
+  --brand-100: #d4e6f8;
+  --brand-50: #eef4fc;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand-950: var(--brand-950);
+  --color-brand-900: var(--brand-900);
+  --color-brand-800: var(--brand-800);
+  --color-brand-700: var(--brand-700);
+  --color-brand-600: var(--brand-600);
+  --color-brand-500: var(--brand-500);
+  --color-brand-400: var(--brand-400);
+  --color-brand-300: var(--brand-300);
+  --color-brand-200: var(--brand-200);
+  --color-brand-100: var(--brand-100);
+  --color-brand-50: var(--brand-50);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --animate-spotlight: spotlight 2s ease .75s 1 forwards;
+  --animate-scroll: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-delay: float 6s ease-in-out 2s infinite;
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+  --animate-gradient-x: gradient-x 15s ease infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-counter: counter 2s ease-out forwards;
+
+  @keyframes spotlight {
+    0% {
+      opacity: 0;
+      transform: translate(-72%, -62%) scale(0.5);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -40%) scale(1);
+    }
+  }
+
+  @keyframes scroll {
+    to {
+      transform: translate(calc(-50% - 0.5rem));
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes pulse-glow {
+
+    0%,
+    100% {
+      box-shadow: 0 0 20px rgba(43, 76, 138, 0.3);
+    }
+
+    50% {
+      box-shadow: 0 0 40px rgba(59, 111, 181, 0.6);
+    }
+  }
+
+  @keyframes gradient-x {
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+}
+
+html.dark {
+  --background: #050a18;
+  --foreground: #ededed;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* Glass card utilities */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 215, 240, 0.4);
+}
+
+/* Gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #7aaae6 50%, #3b6fb5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-brand {
+  background: linear-gradient(135deg, #1e3d7f 0%, #3b6fb5 50%, #5a8fd4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Mesh gradient background */
+.mesh-gradient {
+  background:
+    radial-gradient(at 27% 37%, rgba(30, 61, 127, 0.4) 0px, transparent 50%),
+    radial-gradient(at 97% 21%, rgba(59, 111, 181, 0.3) 0px, transparent 50%),
+    radial-gradient(at 52% 99%, rgba(43, 76, 138, 0.3) 0px, transparent 50%),
+    radial-gradient(at 10% 29%, rgba(90, 143, 212, 0.2) 0px, transparent 50%),
+    radial-gradient(at 97% 96%, rgba(30, 61, 127, 0.2) 0px, transparent 50%),
+    radial-gradient(at 33% 50%, rgba(59, 111, 181, 0.15) 0px, transparent 50%),
+    radial-gradient(at 79% 53%, rgba(43, 76, 138, 0.2) 0px, transparent 50%);
+  background-color: #050a18;
+}
+
+/* Section divider */
+.section-divider {
+  background: linear-gradient(90deg, transparent, rgba(59, 111, 181, 0.3), transparent);
+  height: 1px;
+}
