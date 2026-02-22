@@ -10,7 +10,7 @@ export function Footer() {
                     <div className="md:col-span-2 space-y-4">
                         <Link href="/" className="flex items-center gap-3">
                             <Image
-                                src="/logo.png"
+                                src="/oryx-logo.png"
                                 alt="ORYX"
                                 width={44}
                                 height={44}

@@ -27,15 +27,15 @@ export function Navbar() {
     return (
         <nav
             className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
-                    ? "bg-white/90 dark:bg-brand-950/90 backdrop-blur-xl border-b border-neutral-200 dark:border-white/5 shadow-lg shadow-neutral-200/50 dark:shadow-brand-950/50"
-                    : "bg-transparent"
+                ? "bg-white/90 dark:bg-brand-950/90 backdrop-blur-xl border-b border-neutral-200 dark:border-white/5 shadow-lg shadow-neutral-200/50 dark:shadow-brand-950/50"
+                : "bg-transparent"
                 }`}
         >
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16 items-center">
                     <Link href="/" className="flex items-center gap-2.5">
                         <Image
-                            src="/logo.png"
+                            src="/oryx-logo.png"
                             alt="ORYX"
                             width={36}
                             height={36}

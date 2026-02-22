@@ -25,7 +25,7 @@ export function HeroSection() {
                     className="mb-6"
                 >
                     <Image
-                        src="/logo.png"
+                        src="/oryx-logo.png"
                         alt="ORYX Logo"
                         width={100}
                         height={100}
