@@ -1,8 +1,8 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
-import { fetchCourses, type Course } from "@/lib/api";
+import { type Course } from "@/lib/api";
+import { useAdminStore } from "@/store/admin-store";
 import {
     Calendar,
     Clock,
@@ -146,10 +146,8 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 export function CoursesSection() {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
-    const { data: courses = [], isLoading } = useQuery({
-        queryKey: ["courses"],
-        queryFn: fetchCourses,
-    });
+    const courses = useAdminStore((s) => s.courses);
+    const isLoading = false;
 
     return (
         <section

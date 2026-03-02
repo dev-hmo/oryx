@@ -2,8 +2,8 @@
 
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
-import { fetchBlogs, type BlogPost } from "@/lib/api";
+import { useAdminStore } from "@/store/admin-store";
+import { type BlogPost } from "@/lib/api";
 import Image from "next/image";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
 
@@ -66,10 +66,8 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
 export function BlogSection() {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
-    const { data: blogs = [], isLoading } = useQuery({
-        queryKey: ["blogs"],
-        queryFn: fetchBlogs,
-    });
+    const blogs = useAdminStore((s) => s.blogs);
+    const isLoading = false;
 
     return (
         <section

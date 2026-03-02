@@ -2,8 +2,8 @@
 
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { useQuery } from "@tanstack/react-query";
-import { fetchInstructors, type Instructor } from "@/lib/api";
+import { useAdminStore } from "@/store/admin-store";
+import { type Instructor } from "@/lib/api";
 import Image from "next/image";
 
 function InstructorCard({ instructor, index }: { instructor: Instructor; index: number }) {
@@ -63,10 +63,8 @@ function InstructorCard({ instructor, index }: { instructor: Instructor; index: 
 export function TeamSection() {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
-    const { data: instructors = [], isLoading } = useQuery({
-        queryKey: ["instructors"],
-        queryFn: fetchInstructors,
-    });
+    const instructors = useAdminStore((s) => s.instructors);
+    const isLoading = false;
 
     return (
         <section

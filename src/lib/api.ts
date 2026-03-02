@@ -169,30 +169,35 @@ export const contactInfo = {
 
 export const testimonials = [
     {
+        id: "testimonial-1",
         quote:
             "The culinary training I received here was exceptional. Within a month of graduating, I was placed on a major luxury cruise line. It changed my life.",
         name: "John Davies",
         title: "Commis Chef, Royal Caribbean",
     },
     {
+        id: "testimonial-2",
         quote:
             "The practical simulations and STCW preparation made the transition to sea life so much easier. I felt completely ready on my first day.",
         name: "Maria Garcia",
         title: "Guest Services, Princess Cruises",
     },
     {
+        id: "testimonial-3",
         quote:
             "I started with zero experience in hospitality. The Front Office Management course taught me everything, and the placement cell got me a job in a 5-star hotel.",
         name: "David Chen",
         title: "Front Desk Supervisor, Marriott",
     },
     {
+        id: "testimonial-4",
         quote:
             "Learning from industry veterans gave me insights you can't find in textbooks. The food and beverage service techniques are top-notch.",
         name: "Sarah Jenkins",
         title: "F&B Manager, Hilton Hotels",
     },
     {
+        id: "testimonial-5",
         quote:
             "The disciplined environment and rigorous training standard taught me professionalism. Highly recommend for anyone serious about a cruise career.",
         name: "Michael O'Connor",
@@ -306,4 +311,28 @@ export async function fetchInstructors(): Promise<Instructor[]> {
 export async function fetchBlogs(): Promise<BlogPost[]> {
     await new Promise((resolve) => setTimeout(resolve, 300));
     return blogData;
+}
+
+export interface Testimonial {
+    id: string;
+    quote: string;
+    name: string;
+    title: string;
+}
+
+export interface ContactInfo {
+    phones: string[];
+    viber: string;
+    whatsapp: string;
+    addresses: string[];
+}
+
+export async function fetchTestimonials(): Promise<Testimonial[]> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return testimonials;
+}
+
+export async function fetchContactInfo(): Promise<ContactInfo> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return contactInfo;
 }

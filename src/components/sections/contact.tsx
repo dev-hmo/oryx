@@ -3,11 +3,12 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Phone, MapPin, MessageCircle } from "lucide-react";
-import { contactInfo } from "@/lib/api";
+import { useAdminStore } from "@/store/admin-store";
 
 export function ContactSection() {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
+    const contactInfo = useAdminStore((s) => s.contactInfo);
 
     return (
         <section

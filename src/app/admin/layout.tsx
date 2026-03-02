@@ -1,0 +1,219 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useRbacStore } from "@/store/rbac-store";
+import { useActivityStore } from "@/store/activity-store";
+import { getRoleBadgeColor, getRoleLabel } from "@/lib/auth";
+import {
+    LayoutDashboard, BookOpen, Users, Newspaper, MessageSquareQuote,
+    Settings, LogOut, Menu, X, ChevronRight, Sparkles, History, ShieldCheck,
+} from "lucide-react";
+
+const navItems = [
+    { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+    { href: "/admin/courses", label: "Courses", icon: BookOpen },
+    { href: "/admin/instructors", label: "Instructors", icon: Users },
+    { href: "/admin/blogs", label: "Blog Posts", icon: Newspaper },
+    { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
+    { href: "/admin/settings", label: "Contact Info", icon: Settings },
+];
+
+const adminNavItems = [
+    { href: "/admin/users", label: "User Management", icon: ShieldCheck, permission: "manage_users" as const },
+    { href: "/admin/history", label: "Activity History", icon: History },
+];
+
+function SidebarNav({ onClose }: { onClose?: () => void }) {
+    const pathname = usePathname();
+    const router = useRouter();
+    const { currentUser, can } = useRbacStore();
+    const logActivity = useActivityStore((s) => s.logActivity);
+    const setActivityUser = useActivityStore((s) => s.setCurrentUser);
+    const setCurrentUser = useRbacStore((s) => s.setCurrentUser);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const handleLogout = async () => {
+        logActivity({ action: "LOGOUT", entity: "system", details: "Logged out", success: true });
+        await fetch("/api/auth/logout", { method: "POST" });
+        setCurrentUser(null);
+        setActivityUser(null);
+        router.push("/admin/login");
+    };
+
+    return (
+        <div className="flex flex-col h-full">
+            {/* Logo */}
+            <div className="px-6 py-6 border-b border-white/[0.06]">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-bold text-white tracking-tight">ORYX Admin</p>
+                        <p className="text-[10px] text-white/40 uppercase tracking-widest">Control Panel</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Current user badge */}
+            {currentUser && (
+                <div className="mx-3 mt-3 px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500/30 to-indigo-500/30 border border-white/10 flex items-center justify-center shrink-0">
+                            <span className="text-[10px] font-bold text-white/70 uppercase">{currentUser.displayName[0]}</span>
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-xs font-medium text-white/80 truncate">{currentUser.displayName}</p>
+                            <span className={`inline-flex text-[9px] font-bold uppercase tracking-wider border px-1.5 py-px rounded-full mt-0.5 ${getRoleBadgeColor(currentUser.role)}`}>
+                                {getRoleLabel(currentUser.role)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Nav */}
+            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+                {/* Content section */}
+                <p className="text-[9px] text-white/20 uppercase tracking-widest font-semibold px-3 mb-2">Content</p>
+                {navItems.map((item) => {
+                    const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+                    const Icon = item.icon;
+
+                    // Hydration fix: Only filter after mounting
+                    if (mounted && can("read") === false) return null;
+
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={onClose}
+                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${isActive
+                                ? "bg-white/10 text-white shadow-sm"
+                                : "text-white/50 hover:text-white hover:bg-white/[0.06]"
+                                }`}
+                        >
+                            <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-blue-400" : ""}`} />
+                            <span className="flex-1">{item.label}</span>
+                            {isActive && <ChevronRight className="w-3 h-3 text-blue-400/70" />}
+                        </Link>
+                    );
+                })}
+
+                {/* Admin section */}
+                <p className="text-[9px] text-white/20 uppercase tracking-widest font-semibold px-3 mt-4 mb-2">Administration</p>
+                {adminNavItems.map((item) => {
+                    // Hide user management from non-super-admins
+                    // Hydration fix: Only filter after mounting
+                    if (mounted && item.permission === "manage_users" && !can("manage_users")) return null;
+
+                    const isActive = pathname.startsWith(item.href);
+                    const Icon = item.icon;
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={onClose}
+                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${isActive
+                                ? "bg-white/10 text-white shadow-sm"
+                                : "text-white/50 hover:text-white hover:bg-white/[0.06]"
+                                }`}
+                        >
+                            <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-amber-400" : ""}`} />
+                            <span className="flex-1">{item.label}</span>
+                            {isActive && <ChevronRight className="w-3 h-3 text-amber-400/70" />}
+                        </Link>
+                    );
+                })}
+            </nav>
+
+            {/* Logout */}
+            <div className="px-3 pb-5 border-t border-white/[0.06] pt-4">
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/40 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200"
+                >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                </button>
+            </div>
+        </div>
+    );
+}
+
+const allNavItems = [...navItems, ...adminNavItems];
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const pathname = usePathname();
+    const currentPage = allNavItems.find((i) =>
+        "exact" in i && i.exact ? pathname === i.href : pathname.startsWith(i.href)
+    );
+
+    const fetchRoles = useRbacStore((s) => s.fetchRoles);
+
+    useEffect(() => {
+        setSidebarOpen(false);
+        fetchRoles();
+    }, [pathname, fetchRoles]);
+
+    return (
+        <div className="min-h-screen bg-[#080d1a] text-white flex">
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-[#0c1225] border-r border-white/[0.05] fixed inset-y-0 left-0 z-40">
+                <SidebarNav />
+            </aside>
+
+            {/* Mobile Sidebar overlay */}
+            {sidebarOpen && (
+                <div className="lg:hidden fixed inset-0 z-50 flex">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+                    <aside className="relative w-64 bg-[#0c1225] border-r border-white/[0.05] flex flex-col shadow-2xl">
+                        <div className="absolute top-4 right-4">
+                            <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors">
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <SidebarNav onClose={() => setSidebarOpen(false)} />
+                    </aside>
+                </div>
+            )}
+
+            {/* Main content */}
+            <div className="flex-1 flex flex-col lg:pl-60">
+                {/* Top Header */}
+                <header className="sticky top-0 z-30 h-14 flex items-center gap-4 px-6 bg-[#080d1a]/80 backdrop-blur border-b border-white/[0.05]">
+                    <button
+                        onClick={() => setSidebarOpen(true)}
+                        className="lg:hidden p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                        <Menu className="w-5 h-5" />
+                    </button>
+                    <h1 className="text-sm font-semibold text-white/80">
+                        {currentPage?.label ?? "Admin"}
+                    </h1>
+                    <div className="ml-auto flex items-center gap-3">
+                        <Link
+                            href="/"
+                            target="_blank"
+                            className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                            View Live Site ↗
+                        </Link>
+                    </div>
+                </header>
+
+                {/* Page content */}
+                <main className="flex-1 p-6 lg:p-8">
+                    {children}
+                </main>
+            </div>
+        </div>
+    );
+}

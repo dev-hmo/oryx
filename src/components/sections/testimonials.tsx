@@ -3,11 +3,12 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { InfiniteMovingCards } from "../ui/infinite-moving-cards";
-import { testimonials } from "@/lib/api";
+import { useAdminStore } from "@/store/admin-store";
 
 export function TestimonialsSection() {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
+    const testimonials = useAdminStore((s) => s.testimonials);
 
     return (
         <section
