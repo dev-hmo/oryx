@@ -328,17 +328,23 @@ export default function CoursesAdmin() {
             {/* Delete Confirm */}
             <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete Course">
                 <div className="space-y-5">
-                    <p className="text-white/60 text-sm">Are you sure you want to delete this course? This action cannot be undone.</p>
+                    <p className="text-gray-600 dark:text-white/60 text-sm font-medium leading-relaxed">
+                        Are you sure you want to delete this course? This action is permanent and cannot be undone. All associated data will be removed from the system.
+                    </p>
                     <div className="flex gap-3">
                         <button
                             onClick={handleDelete}
                             disabled={deleteMutation.isPending}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors disabled:opacity-50 shadow-lg shadow-red-500/20"
                         >
                             {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                            Delete
+                            Delete Course
                         </button>
-                        <button onClick={() => setDeleteTarget(null)} className="px-5 py-2.5 rounded-xl border border-white/10 text-white/50 hover:text-white text-sm transition-colors" disabled={deleteMutation.isPending}>
+                        <button
+                            onClick={() => setDeleteTarget(null)}
+                            className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-400 dark:text-white/50 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors"
+                            disabled={deleteMutation.isPending}
+                        >
                             Cancel
                         </button>
                     </div>

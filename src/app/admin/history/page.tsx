@@ -49,6 +49,34 @@ function EntityBadge({ entity }: { entity: EntityType }) {
 const selectCls = "h-9 px-3 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/80 text-xs focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer";
 const inputCls = "h-9 px-3 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/80 text-xs placeholder:text-white/30 focus:outline-none focus:border-blue-500/50 transition-all";
 
+function Modal({
+    open,
+    onClose,
+    title,
+    children,
+}: {
+    open: boolean;
+    onClose: () => void;
+    title: string;
+    children: React.ReactNode;
+}) {
+    if (!open) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20">
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative w-full max-w-xl bg-white dark:bg-[#0f1628] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-colors">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#0f1628] transition-colors">
+                    <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h2>
+                    <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+                <div className="p-6">{children}</div>
+            </div>
+        </div>
+    );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function HistoryPage() {
     const { logs, getFilteredLogs, clearLogs } = useActivityStore();
@@ -56,6 +84,7 @@ export default function HistoryPage() {
     const [filter, setFilter] = useState<ActivityFilter>({});
     const [showFilters, setShowFilters] = useState(false);
     const [page, setPage] = useState(1);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
     const PER_PAGE = 25;
 
     const setF = (key: keyof ActivityFilter, val: string) => {
@@ -94,8 +123,8 @@ export default function HistoryPage() {
                         <History className="w-5 h-5 text-amber-400" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-white">Activity History</h2>
-                        <p className="text-sm text-white/40">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Activity History</h2>
+                        <p className="text-sm text-gray-400 dark:text-white/40">
                             {filtered.length} events · {logs.length} total
                         </p>
                     </div>
@@ -105,7 +134,7 @@ export default function HistoryPage() {
                         onClick={() => setShowFilters((p) => !p)}
                         className={`flex items-center gap-2 h-9 px-4 rounded-xl border text-sm font-medium transition-all ${showFilters || activeFilterCount > 0
                             ? "bg-blue-500/20 border-blue-500/30 text-blue-400"
-                            : "border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.06]"
+                            : "border-gray-200 dark:border-white/[0.08] text-gray-400 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/[0.06]"
                             }`}
                     >
                         <Filter className="w-4 h-4" />
@@ -119,30 +148,66 @@ export default function HistoryPage() {
                     <button
                         onClick={handleExport}
                         disabled={filtered.length === 0}
-                        className="flex items-center gap-2 h-9 px-4 rounded-xl border border-white/[0.08] text-white/50 hover:text-emerald-400 hover:border-emerald-500/30 text-sm transition-all disabled:opacity-40"
+                        className="flex items-center gap-2 h-9 px-4 rounded-xl border border-gray-200 dark:border-white/[0.08] text-gray-400 dark:text-white/50 hover:text-emerald-500 dark:hover:text-emerald-400 hover:border-emerald-500/30 text-sm transition-all disabled:opacity-40"
                     >
                         <Download className="w-4 h-4" /> Export CSV
                     </button>
                     <button
-                        onClick={clearLogs}
-                        className="flex items-center gap-2 h-9 px-4 rounded-xl border border-white/[0.08] text-white/50 hover:text-red-400 hover:border-red-500/30 text-sm transition-all"
+                        onClick={() => setShowClearConfirm(true)}
+                        className="flex items-center gap-2 h-9 px-4 rounded-xl border border-gray-200 dark:border-white/[0.08] text-gray-400 dark:text-white/50 hover:text-red-500 dark:hover:text-red-400 hover:border-red-500/30 text-sm transition-all shadow-sm"
                     >
                         <Trash2 className="w-4 h-4" /> Clear
                     </button>
                 </div>
             </div>
 
+            {/* Clear Confirmation Modal */}
+            <Modal
+                open={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+                title="Clear Activity Logs"
+            >
+                <div className="space-y-6">
+                    <div className="flex items-start gap-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+                        <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0">
+                            <Trash2 className="w-5 h-5 text-red-500" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-900 dark:text-white font-bold">Clear All History?</p>
+                            <p className="text-xs text-gray-500 dark:text-white/40 mt-1 leading-relaxed">
+                                Are you sure you want to permanently clear all activity logs? This action cannot be undone and you will lose the entire audit trail.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => { clearLogs(); setShowClearConfirm(false); }}
+                            className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-all shadow-lg shadow-red-500/20"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            Clear Everything
+                        </button>
+                        <button
+                            onClick={() => setShowClearConfirm(false)}
+                            className="flex-1 px-5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-400 dark:text-white/50 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-all"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
             {/* Quick stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                    { label: "Logins", value: logs.filter((l) => l.action === "LOGIN").length, color: "text-blue-400" },
-                    { label: "Creates", value: logs.filter((l) => l.action === "CREATE").length, color: "text-emerald-400" },
-                    { label: "Updates", value: logs.filter((l) => l.action === "UPDATE").length, color: "text-amber-400" },
-                    { label: "Deletes", value: logs.filter((l) => l.action === "DELETE").length, color: "text-red-400" },
+                    { label: "Logins", value: logs.filter((l) => l.action === "LOGIN").length, color: "text-blue-500 dark:text-blue-400" },
+                    { label: "Creates", value: logs.filter((l) => l.action === "CREATE").length, color: "text-emerald-500 dark:text-emerald-400" },
+                    { label: "Updates", value: logs.filter((l) => l.action === "UPDATE").length, color: "text-amber-500 dark:text-amber-400" },
+                    { label: "Deletes", value: logs.filter((l) => l.action === "DELETE").length, color: "text-red-500 dark:text-red-400" },
                 ].map((s) => (
-                    <div key={s.label} className="rounded-xl bg-white/[0.03] border border-white/[0.05] p-4">
+                    <div key={s.label} className="admin-card !p-4">
                         <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-                        <p className="text-xs text-white/40 mt-0.5">{s.label}</p>
+                        <p className="text-xs text-gray-500 dark:text-white/40 mt-0.5 font-medium uppercase tracking-wider">{s.label}</p>
                     </div>
                 ))}
             </div>

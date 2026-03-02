@@ -420,23 +420,30 @@ export default function UsersPage() {
             {/* Delete Confirm */}
             <Modal open={modal === "delete"} onClose={() => { setModal(null); setDeleteTarget(null); }} title="Delete User">
                 <div className="space-y-5">
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                        <UserX className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+                        <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0">
+                            <UserX className="w-5 h-5 text-red-500" />
+                        </div>
                         <div>
-                            <p className="text-sm text-white/80 font-medium">This will permanently delete the user.</p>
-                            <p className="text-xs text-white/40 mt-1">They will lose all access immediately. This cannot be undone.</p>
+                            <p className="text-sm text-gray-900 dark:text-white font-bold transition-colors">Confirm Deletion</p>
+                            <p className="text-xs text-gray-500 dark:text-white/40 mt-1 leading-relaxed transition-colors">
+                                Are you sure you want to delete this user? They will lose all access immediately. This action is permanent and cannot be undone.
+                            </p>
                         </div>
                     </div>
                     <div className="flex gap-3">
                         <button
                             onClick={() => deleteTarget && handleDelete(deleteTarget)}
                             disabled={deleteUser.isPending}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                            className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-colors disabled:opacity-50 shadow-lg shadow-red-500/20"
                         >
                             {deleteUser.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                             Delete User
                         </button>
-                        <button onClick={() => { setModal(null); setDeleteTarget(null); }} className="px-5 py-2.5 rounded-xl border border-white/10 text-white/50 hover:text-white text-sm transition-colors">
+                        <button
+                            onClick={() => { setModal(null); setDeleteTarget(null); }}
+                            className="flex-1 px-5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-400 dark:text-white/50 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors"
+                        >
                             Cancel
                         </button>
                     </div>
