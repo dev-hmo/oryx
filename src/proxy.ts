@@ -4,7 +4,7 @@ import { verifyJwt, getSessionCookieName } from "@/lib/auth";
 
 const COOKIE_NAME = getSessionCookieName();
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Only guard /admin routes (not /admin/login itself)
