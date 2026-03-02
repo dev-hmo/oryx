@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useCourses, useAddCourse, useUpdateCourse, useDeleteCourse } from "@/hooks/use-content";
 import { useActivityStore } from "@/store/activity-store";
 import { useRbacStore } from "@/store/rbac-store";
+import { useThemeStore } from "@/store/theme-store";
 import { type Course } from "@/lib/api";
 import { Plus, Pencil, Trash2, X, Save, ShieldAlert, Loader2, AlertCircle } from "lucide-react";
 
@@ -40,10 +41,10 @@ function Modal({
     return (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20">
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-2xl bg-[#0f1628] border border-white/10 rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] sticky top-0 bg-[#0f1628] z-10">
-                    <h2 className="text-sm font-semibold text-white">{title}</h2>
-                    <button onClick={onClose} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors">
+            <div className="relative w-full max-w-2xl bg-white dark:bg-[#0f1628] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto transition-colors">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] sticky top-0 bg-white dark:bg-[#0f1628] z-10 transition-colors">
+                    <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h2>
+                    <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
                         <X className="w-4 h-4" />
                     </button>
                 </div>
@@ -56,13 +57,13 @@ function Modal({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <label className="block text-xs font-medium text-white/40 mb-1.5">{label}</label>
+            <label className="block text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider mb-1.5">{label}</label>
             {children}
         </div>
     );
 }
 
-const inputCls = "w-full px-3 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-blue-500/60 transition-all";
+const inputCls = "admin-input";
 
 function CourseForm({
     initial,
@@ -139,12 +140,12 @@ function CourseForm({
                 <button
                     onClick={handleSave}
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                    className="admin-btn-primary flex items-center justify-center gap-2"
                 >
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Save Course
                 </button>
-                <button onClick={onCancel} className="px-5 py-2.5 rounded-xl border border-white/10 text-white/50 hover:text-white text-sm transition-colors" disabled={isSubmitting}>
+                <button onClick={onCancel} className="admin-btn-secondary" disabled={isSubmitting}>
                     Cancel
                 </button>
             </div>
@@ -160,6 +161,7 @@ export default function CoursesAdmin() {
 
     const logActivity = useActivityStore((s) => s.logActivity);
     const { can } = useRbacStore();
+    const { theme } = useThemeStore();
 
     const [modal, setModal] = useState<"add" | "edit" | null>(null);
     const [editing, setEditing] = useState<Course | null>(null);
@@ -224,13 +226,13 @@ export default function CoursesAdmin() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Courses</h2>
-                    <p className="text-sm text-white/40 mt-0.5">{courses.length} total courses</p>
+                    <h2 className={`text-xl font-bold transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Courses</h2>
+                    <p className={`text-sm mt-0.5 transition-colors ${theme === 'dark' ? 'text-white/40' : 'text-gray-500 font-medium'}`}>{courses.length} total courses</p>
                 </div>
                 {can("create") && (
                     <button
                         onClick={() => setModal("add")}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-500/20"
+                        className="admin-btn-primary flex items-center gap-2 shadow-lg shadow-blue-500/20"
                     >
                         <Plus className="w-4 h-4" /> Add Course
                     </button>
@@ -243,27 +245,27 @@ export default function CoursesAdmin() {
             )}
 
             {/* Table */}
-            <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
+            <div className="admin-card !p-0 overflow-hidden">
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="bg-white/[0.03] border-b border-white/[0.06]">
-                            <th className="text-left px-5 py-3.5 text-xs font-semibold text-white/40 uppercase tracking-wider">Course</th>
-                            <th className="text-left px-4 py-3.5 text-xs font-semibold text-white/40 uppercase tracking-wider hidden md:table-cell">Category</th>
-                            <th className="text-left px-4 py-3.5 text-xs font-semibold text-white/40 uppercase tracking-wider hidden lg:table-cell">Duration</th>
-                            <th className="text-left px-4 py-3.5 text-xs font-semibold text-white/40 uppercase tracking-wider hidden lg:table-cell">Fee</th>
-                            <th className="text-left px-4 py-3.5 text-xs font-semibold text-white/40 uppercase tracking-wider hidden md:table-cell">Start Date</th>
+                        <tr className="bg-gray-50 dark:bg-white/[0.03] border-b border-gray-100 dark:border-white/[0.06] transition-colors">
+                            <th className="text-left px-5 py-3.5 text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider">Course</th>
+                            <th className="text-left px-4 py-3.5 text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider hidden md:table-cell">Category</th>
+                            <th className="text-left px-4 py-3.5 text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider hidden lg:table-cell">Duration</th>
+                            <th className="text-left px-4 py-3.5 text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider hidden lg:table-cell">Fee</th>
+                            <th className="text-left px-4 py-3.5 text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider hidden md:table-cell">Start Date</th>
                             <th className="w-24 px-4 py-3.5"></th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/[0.04]">
+                    <tbody className="divide-y divide-gray-100 dark:divide-white/[0.04] transition-colors">
                         {courses.map((course) => (
-                            <tr key={course.id} className="hover:bg-white/[0.02] transition-colors">
+                            <tr key={course.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors group">
                                 <td className="px-5 py-4">
                                     <div className="flex items-center gap-3">
-                                        <span className="text-xl">{course.icon}</span>
+                                        <span className="text-xl group-hover:scale-110 transition-transform">{course.icon}</span>
                                         <div>
-                                            <p className="font-medium text-white/90">{course.title}</p>
-                                            <p className="text-xs text-white/30">{course.subtitle}</p>
+                                            <p className={`font-semibold transition-colors ${theme === 'dark' ? 'text-white/90' : 'text-gray-900'}`}>{course.title}</p>
+                                            <p className={`text-xs transition-colors ${theme === 'dark' ? 'text-white/30' : 'text-gray-400'}`}>{course.subtitle}</p>
                                         </div>
                                     </div>
                                 </td>
@@ -276,20 +278,20 @@ export default function CoursesAdmin() {
                                         {course.category}
                                     </span>
                                 </td>
-                                <td className="px-4 py-4 text-white/50 hidden lg:table-cell">{course.duration}</td>
-                                <td className="px-4 py-4 text-white/50 hidden lg:table-cell">{course.fee}</td>
-                                <td className="px-4 py-4 text-white/50 hidden md:table-cell">{course.startDate}</td>
+                                <td className="px-4 py-4 text-gray-500 dark:text-white/50 hidden lg:table-cell transition-colors font-medium">{course.duration}</td>
+                                <td className="px-4 py-4 text-gray-500 dark:text-white/50 hidden lg:table-cell transition-colors font-medium">{course.fee}</td>
+                                <td className="px-4 py-4 text-gray-500 dark:text-white/50 hidden md:table-cell transition-colors font-medium">{course.startDate}</td>
                                 <td className="px-4 py-4">
                                     <div className="flex items-center gap-2 justify-end">
                                         <button
                                             onClick={() => { setEditing(course); setModal("edit"); }}
-                                            className="p-1.5 rounded-lg text-white/30 hover:text-blue-400 hover:bg-blue-400/10 transition-colors"
+                                            className={`p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'text-white/30 hover:text-blue-400 hover:bg-blue-400/10' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'}`}
                                         >
                                             <Pencil className="w-3.5 h-3.5" />
                                         </button>
                                         <button
                                             onClick={() => setDeleteTarget(course.id)}
-                                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                            className={`p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'text-white/30 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-600 hover:bg-red-50'}`}
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </button>

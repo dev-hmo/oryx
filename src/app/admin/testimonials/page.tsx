@@ -4,22 +4,24 @@ import React, { useState } from "react";
 import { useTestimonials, useAddTestimonial, useUpdateTestimonial, useDeleteTestimonial } from "@/hooks/use-content";
 import { useActivityStore } from "@/store/activity-store";
 import { useRbacStore } from "@/store/rbac-store";
+import { useThemeStore } from "@/store/theme-store";
 import { type Testimonial } from "@/lib/api";
 import { Plus, Pencil, Trash2, X, Save, Quote, ShieldAlert, Loader2, AlertCircle } from "lucide-react";
 
 const EMPTY_TESTIMONIAL: Testimonial = { id: "", quote: "", name: "", title: "" };
 
-const inputCls = "w-full px-3 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-blue-500/60 transition-all";
+const inputCls = "admin-input";
+const labelCls = "block text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider mb-1.5";
 
 function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
     if (!open) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20">
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-xl bg-[#0f1628] border border-white/10 rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] sticky top-0 bg-[#0f1628] z-10">
-                    <h2 className="text-sm font-semibold text-white">{title}</h2>
-                    <button onClick={onClose} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="relative w-full max-w-xl bg-white dark:bg-[#0f1628] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto transition-colors">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] sticky top-0 bg-white dark:bg-[#0f1628] z-10 transition-colors">
+                    <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h2>
+                    <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
                 </div>
                 <div className="p-6">{children}</div>
             </div>
@@ -30,7 +32,7 @@ function Modal({ open, onClose, title, children }: { open: boolean; onClose: () 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <label className="block text-xs font-medium text-white/40 mb-1.5">{label}</label>
+            <label className={labelCls}>{label}</label>
             {children}
         </div>
     );
@@ -66,12 +68,12 @@ function TestimonialForm({
                 <button
                     onClick={handleSave}
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                    className="admin-btn-primary flex-1 flex items-center justify-center gap-2"
                 >
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Save
                 </button>
-                <button onClick={onCancel} className="px-5 py-2.5 rounded-xl border border-white/10 text-white/50 hover:text-white text-sm transition-colors" disabled={isSubmitting}>Cancel</button>
+                <button onClick={onCancel} className="admin-btn-secondary" disabled={isSubmitting}>Cancel</button>
             </div>
         </div>
     );
@@ -85,6 +87,7 @@ export default function TestimonialsAdmin() {
 
     const logActivity = useActivityStore((s) => s.logActivity);
     const { can } = useRbacStore();
+    const { theme } = useThemeStore();
 
     const [modal, setModal] = useState<"add" | "edit" | null>(null);
     const [editing, setEditing] = useState<Testimonial | null>(null);
@@ -148,11 +151,11 @@ export default function TestimonialsAdmin() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Testimonials</h2>
-                    <p className="text-sm text-white/40 mt-0.5">{testimonials.length} total testimonials</p>
+                    <h2 className={`text-xl font-bold transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Testimonials</h2>
+                    <p className={`text-sm mt-0.5 transition-colors ${theme === 'dark' ? 'text-white/40' : 'text-gray-500 font-medium'}`}>{testimonials.length} total testimonials</p>
                 </div>
                 {can("create") && (
-                    <button onClick={() => setModal("add")} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-500/20">
+                    <button onClick={() => setModal("add")} className="admin-btn-primary flex items-center gap-2 shadow-lg shadow-blue-500/20">
                         <Plus className="w-4 h-4" /> Add Testimonial
                     </button>
                 )}
@@ -165,19 +168,19 @@ export default function TestimonialsAdmin() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {testimonials.map((t) => (
-                    <div key={t.id} className="relative rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5 group">
-                        <Quote className="w-6 h-6 text-blue-500/30 mb-3" />
-                        <p className="text-sm text-white/70 leading-relaxed line-clamp-4 italic mb-4">&ldquo;{t.quote}&rdquo;</p>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-semibold text-white">{t.name}</p>
-                                <p className="text-xs text-blue-400 mt-0.5">{t.title}</p>
+                    <div key={t.id} className="admin-card p-6 flex flex-col hover:border-blue-500/30 dark:hover:border-blue-500/20 transition-all group">
+                        <Quote className="w-8 h-8 text-blue-500/20 dark:text-blue-500/30 mb-4 shrink-0 transition-colors" />
+                        <p className={`text-sm leading-relaxed line-clamp-4 italic mb-6 transition-colors ${theme === 'dark' ? 'text-white/70' : 'text-gray-600 font-medium'}`}>&ldquo;{t.quote}&rdquo;</p>
+                        <div className="mt-auto flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                                <p className={`text-sm font-bold truncate transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{t.name}</p>
+                                <p className="text-xs text-blue-500 dark:text-blue-400 font-semibold mt-0.5 truncate">{t.title}</p>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button onClick={() => { setEditing(t); setModal("edit"); }} className="p-1.5 rounded-lg text-white/30 hover:text-blue-400 hover:bg-blue-400/10 transition-colors">
+                            <div className="flex items-center gap-2 shrink-0 ml-4">
+                                <button onClick={() => { setEditing(t); setModal("edit"); }} className={`p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'text-white/20 hover:text-blue-400 hover:bg-blue-400/10' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'}`}>
                                     <Pencil className="w-3.5 h-3.5" />
                                 </button>
-                                <button onClick={() => setDeleteTarget(t.id)} className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors">
+                                <button onClick={() => setDeleteTarget(t.id)} className={`p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'text-white/20 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-600 hover:bg-red-50'}`}>
                                     <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                             </div>

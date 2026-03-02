@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useBlogs, useAddBlog, useUpdateBlog, useDeleteBlog } from "@/hooks/use-content";
 import { useActivityStore } from "@/store/activity-store";
 import { useRbacStore } from "@/store/rbac-store";
+import { useThemeStore } from "@/store/theme-store";
 import ImageUpload from "@/components/ImageUpload";
 import { type BlogPost } from "@/lib/api";
 import { Plus, Pencil, Trash2, X, Save, Calendar, Clock, ShieldAlert, Loader2, AlertCircle } from "lucide-react";
@@ -20,17 +21,18 @@ const EMPTY_POST: BlogPost = {
     readTime: "",
 };
 
-const inputCls = "w-full px-3 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-blue-500/60 transition-all";
+const inputCls = "admin-input";
+const labelCls = "block text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider mb-1.5";
 
 function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
     if (!open) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20">
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-xl bg-[#0f1628] border border-white/10 rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] sticky top-0 bg-[#0f1628] z-10">
-                    <h2 className="text-sm font-semibold text-white">{title}</h2>
-                    <button onClick={onClose} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
+            <div className="relative w-full max-w-xl bg-white dark:bg-[#0f1628] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto transition-colors">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] sticky top-0 bg-white dark:bg-[#0f1628] z-10 transition-colors">
+                    <h2 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h2>
+                    <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
                 </div>
                 <div className="p-6">{children}</div>
             </div>
@@ -41,7 +43,7 @@ function Modal({ open, onClose, title, children }: { open: boolean; onClose: () 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <label className="block text-xs font-medium text-white/40 mb-1.5">{label}</label>
+            <label className={labelCls}>{label}</label>
             {children}
         </div>
     );
@@ -92,12 +94,12 @@ function BlogForm({
                 <button
                     onClick={handleSave}
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors disabled:opacity-50"
+                    className="admin-btn-primary flex items-center justify-center gap-2"
                 >
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Save Post
                 </button>
-                <button onClick={onCancel} className="px-5 py-2.5 rounded-xl border border-white/10 text-white/50 hover:text-white text-sm transition-colors" disabled={isSubmitting}>Cancel</button>
+                <button onClick={onCancel} className="admin-btn-secondary" disabled={isSubmitting}>Cancel</button>
             </div>
         </div>
     );
@@ -118,6 +120,7 @@ export default function BlogsAdmin() {
 
     const logActivity = useActivityStore((s) => s.logActivity);
     const { can } = useRbacStore();
+    const { theme } = useThemeStore();
 
     const [modal, setModal] = useState<"add" | "edit" | null>(null);
     const [editing, setEditing] = useState<BlogPost | null>(null);
@@ -181,11 +184,11 @@ export default function BlogsAdmin() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-white">Blog Posts</h2>
-                    <p className="text-sm text-white/40 mt-0.5">{blogs.length} total posts</p>
+                    <h2 className={`text-xl font-bold transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Blog Posts</h2>
+                    <p className={`text-sm mt-0.5 transition-colors ${theme === 'dark' ? 'text-white/40' : 'text-gray-500 font-medium'}`}>{blogs.length} total posts</p>
                 </div>
                 {can("create") && (
-                    <button onClick={() => setModal("add")} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-blue-500/20">
+                    <button onClick={() => setModal("add")} className="admin-btn-primary flex items-center gap-2 shadow-lg shadow-blue-500/20">
                         <Plus className="w-4 h-4" /> Add Post
                     </button>
                 )}
@@ -198,28 +201,28 @@ export default function BlogsAdmin() {
 
             <div className="space-y-3">
                 {blogs.map((post) => (
-                    <div key={post.id} className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors group">
-                        <div className="w-16 h-12 rounded-xl overflow-hidden bg-white/[0.05] shrink-0">
+                    <div key={post.id} className="admin-card !p-4 flex items-center gap-4 hover:border-blue-500/30 dark:hover:border-blue-500/20 transition-all group">
+                        <div className={`w-16 h-12 rounded-xl overflow-hidden shrink-0 transition-colors ${theme === 'dark' ? 'bg-white/[0.05]' : 'bg-gray-100'}`}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+                            <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                                <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-semibold ${categoryColor[post.category] ?? "bg-white/10 text-white/40"}`}>
+                                <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border transition-colors ${categoryColor[post.category] ?? (theme === 'dark' ? 'bg-white/10 text-white/40 border-white/10' : 'bg-gray-100 text-gray-400 border-gray-200')}`}>
                                     {post.category}
                                 </span>
                             </div>
-                            <p className="font-medium text-white/90 text-sm truncate">{post.title}</p>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-white/30">
-                                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{post.date}</span>
-                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{post.readTime}</span>
+                            <p className={`font-bold text-sm truncate transition-colors ${theme === 'dark' ? 'text-white/90' : 'text-gray-900'}`}>{post.title}</p>
+                            <div className="flex items-center gap-3 mt-1.5 text-[10px] font-medium transition-colors text-gray-400 dark:text-white/30">
+                                <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" />{post.date}</span>
+                                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" />{post.readTime}</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                            <button onClick={() => { setEditing(post); setModal("edit"); }} className="p-1.5 rounded-lg text-white/30 hover:text-blue-400 hover:bg-blue-400/10 transition-colors">
+                            <button onClick={() => { setEditing(post); setModal("edit"); }} className={`p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'text-white/20 hover:text-blue-400 hover:bg-blue-400/10' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'}`}>
                                 <Pencil className="w-3.5 h-3.5" />
                             </button>
-                            <button onClick={() => setDeleteTarget(post.id)} className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors">
+                            <button onClick={() => setDeleteTarget(post.id)} className={`p-1.5 rounded-lg transition-colors ${theme === 'dark' ? 'text-white/20 hover:text-red-400 hover:bg-red-400/10' : 'text-gray-400 hover:text-red-600 hover:bg-red-50'}`}>
                                 <Trash2 className="w-3.5 h-3.5" />
                             </button>
                         </div>

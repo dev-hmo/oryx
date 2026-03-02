@@ -2,19 +2,22 @@
 
 import React, { useState } from "react";
 import { useSettings, useUpdateSettings } from "@/hooks/use-content";
+import { useThemeStore } from "@/store/theme-store";
 import { type ContactInfo } from "@/lib/api";
 import { Phone, MessageCircle, MapPin, Save, Plus, Trash2, CheckCircle, Loader2, AlertCircle } from "lucide-react";
 
-const inputCls = "w-full px-3 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-blue-500/60 transition-all";
+const inputCls = "admin-input";
+const labelCls = "block text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-wider mb-1.5";
 
 function Section({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) {
+    const { theme } = useThemeStore();
     return (
-        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6">
-            <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-blue-400" />
+        <div className="admin-card">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center transition-colors">
+                    <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-sm font-semibold text-white">{title}</h3>
+                <h3 className={`text-sm font-bold transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{title}</h3>
             </div>
             {children}
         </div>
@@ -55,7 +58,7 @@ function SettingsForm({ initial, onSave, isSubmitting }: { initial: ContactInfo;
                             />
                             <button
                                 onClick={() => setPhones((prev) => prev.filter((_, j) => j !== i))}
-                                className="p-2.5 shrink-0 rounded-xl text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                className="p-2.5 shrink-0 rounded-xl text-gray-400 dark:text-white/30 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 transition-colors"
                                 disabled={isSubmitting}
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -65,7 +68,7 @@ function SettingsForm({ initial, onSave, isSubmitting }: { initial: ContactInfo;
                 </div>
                 <button
                     onClick={() => setPhones((prev) => [...prev, ""])}
-                    className="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 hover:underline transition-all"
                     disabled={isSubmitting}
                 >
                     <Plus className="w-3.5 h-3.5" /> Add Phone Number
@@ -76,11 +79,11 @@ function SettingsForm({ initial, onSave, isSubmitting }: { initial: ContactInfo;
             <Section icon={MessageCircle} title="Messaging">
                 <div className="space-y-3">
                     <div>
-                        <label className="block text-xs font-medium text-white/40 mb-1.5">Viber</label>
+                        <label className={labelCls}>Viber</label>
                         <input className={inputCls} value={viber} onChange={(e) => setViber(e.target.value)} placeholder="+959 421 139 022" disabled={isSubmitting} />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-white/40 mb-1.5">WhatsApp</label>
+                        <label className={labelCls}>WhatsApp</label>
                         <input className={inputCls} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+959 421 139 022" disabled={isSubmitting} />
                     </div>
                 </div>
@@ -100,7 +103,7 @@ function SettingsForm({ initial, onSave, isSubmitting }: { initial: ContactInfo;
                             />
                             <button
                                 onClick={() => setAddresses((prev) => prev.filter((_, j) => j !== i))}
-                                className="p-2.5 shrink-0 mt-0.5 rounded-xl text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                                className="p-2.5 shrink-0 mt-0.5 rounded-xl text-gray-400 dark:text-white/30 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-400/10 transition-colors"
                                 disabled={isSubmitting}
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -110,7 +113,7 @@ function SettingsForm({ initial, onSave, isSubmitting }: { initial: ContactInfo;
                 </div>
                 <button
                     onClick={() => setAddresses((prev) => [...prev, ""])}
-                    className="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                    className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 hover:underline transition-all"
                     disabled={isSubmitting}
                 >
                     <Plus className="w-3.5 h-3.5" /> Add Address
@@ -143,6 +146,7 @@ function SettingsForm({ initial, onSave, isSubmitting }: { initial: ContactInfo;
 export default function SettingsAdmin() {
     const { data: contactInfo, isLoading, isError } = useSettings();
     const updateMutation = useUpdateSettings();
+    const { theme } = useThemeStore();
 
     const handleSave = async (data: ContactInfo) => {
         try {
@@ -155,8 +159,10 @@ export default function SettingsAdmin() {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                <p className="text-white/40 animate-pulse text-sm">Loading settings...</p>
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                </div>
+                <p className={`animate-pulse text-sm transition-colors ${theme === 'dark' ? 'text-white/40' : 'text-gray-400'}`}>Loading settings...</p>
             </div>
         );
     }
@@ -164,14 +170,14 @@ export default function SettingsAdmin() {
     if (isError) {
         return (
             <div className="py-20 flex flex-col items-center justify-center text-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                    <AlertCircle className="w-6 h-6 text-red-400" />
+                <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center">
+                    <AlertCircle className="w-6 h-6 text-red-500 dark:text-red-400" />
                 </div>
                 <div>
-                    <h3 className="text-white font-semibold">Failed to load settings</h3>
-                    <p className="text-white/40 text-sm mt-1">Please try again later.</p>
+                    <h3 className={`text-lg font-bold transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Failed to load settings</h3>
+                    <p className={`text-sm mt-1 transition-colors ${theme === 'dark' ? 'text-white/40' : 'text-gray-500 font-medium'}`}>Please try again later.</p>
                 </div>
-                <button onClick={() => window.location.reload()} className="px-5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-semibold hover:bg-white/10 transition-colors">
+                <button onClick={() => window.location.reload()} className="admin-btn-secondary px-8">
                     Retry
                 </button>
             </div>
@@ -180,9 +186,9 @@ export default function SettingsAdmin() {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h2 className="text-xl font-bold text-white">Contact Info Settings</h2>
-                <p className="text-sm text-white/40 mt-0.5">Update the contact details shown on the live website.</p>
+            <div className="pb-2">
+                <h2 className={`text-xl font-bold transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Contact Info Settings</h2>
+                <p className={`text-sm mt-0.5 transition-colors ${theme === 'dark' ? 'text-white/40' : 'text-gray-500 font-medium'}`}>Update the contact details shown on the live website.</p>
             </div>
 
             {contactInfo && (

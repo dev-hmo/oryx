@@ -114,7 +114,7 @@ export async function POST(request: Request) {
             if (userCount === 0) {
                 console.log("No users found in database. Seeding default admin...");
                 const salt = await bcrypt.genSalt(12);
-                const passwordHash = await bcrypt.hash("Mnn2192000", salt);
+                const passwordHash = await bcrypt.hash("21121975", salt);
 
                 user = await User.create({
                     username: "admin",
